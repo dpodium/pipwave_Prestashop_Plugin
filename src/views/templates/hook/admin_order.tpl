@@ -37,7 +37,7 @@
                 <div class="row">
                     <div class="form-horizontal col-lg-8">
                         <div class="form-group">
-                            <label class="control-label col-lg-3">{l s="Pipwave Reference ID: " mod='pipwave'}</label>
+                            <label class="control-label col-lg-3">{l s="pipwave Reference ID: " mod='pipwave'}</label>
                             <label class="control-label col-lg-5">
                                 <div class="text-left"><a href="{$pipwave_merchant_portal_url}reports/payment-transaction/view?pw_id={$pipwave_pw_id}" target="_pipwave">{$pipwave_pw_id} <i class="icon-external-link"></i></a></div>
                             </label>
