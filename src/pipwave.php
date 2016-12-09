@@ -391,14 +391,49 @@ class pipwave extends PaymentModule {
             ));
             return;
         }
+        
         $data = array(
-            'action' => 'refund',
-            'op' => 'submit',
             'timestamp' => time(),
             'api_key' => $this->api_key,
             'pw_id' => $pw_id,
             'refund_amount' => $amount,
         );
+        
+        $response = $this->attemptRefundRequest($data, 'initiate');
+        if (isset($response['status']) && $response['status'] == 200) {
+            if (!$response['supports_refund']) {
+                $this->smarty->assign(array(
+                    'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
+                ));
+            } else {
+                $response = $this->attemptRefundRequest($data, 'submit');
+                if (!isset($response['status'])) {
+                    $this->smarty->assign(array(
+                        'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
+                    ));
+                } else if ($response['status'] == 200) {
+                    $this->smarty->assign(array(
+                        'pipwave_head' => $this->displayConfirmation($this->l('Refund request submitted successfully!')),
+                    ));
+                } else if (in_array($response['status'], array(3003, 3004, 3005, '3003', '3004', '3005'))) {
+                    $this->smarty->assign(array(
+                        'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
+                    ));
+                } else {
+                    $this->smarty->assign(array(
+                        'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
+                    ));
+                }
+            }
+        } else {
+            $this->smarty->assign(array(
+                'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
+            ));
+        }
+    }
+    
+    protected function attemptRefundRequest($data, $op) {
+        $data['op'] = $op;
         $signatureParam = array(
             'op' => $data['op'],
             'pw_id' => $data['pw_id'],
@@ -408,24 +443,7 @@ class pipwave extends PaymentModule {
         );
         $data['signature'] = $this->generateSignature($signatureParam);
         
-        $response = $this->sendRequest($data);
-        if (!isset($response['status'])) {
-            $this->smarty->assign(array(
-                'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
-            ));
-        } else if ($response['status'] == 200) {
-            $this->smarty->assign(array(
-                'pipwave_head' => $this->displayConfirmation($this->l('Refund request submitted successfully!')),
-            ));
-        } else if (in_array($response['status'], array(3003, 3004, 3005, '3003', '3004', '3005'))) {
-            $this->smarty->assign(array(
-                'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
-            ));
-        } else {
-            $this->smarty->assign(array(
-                'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
-            ));
-        }
+        return $this->sendRequest($data);
     }
     
     /*======== Utilities ========*/
