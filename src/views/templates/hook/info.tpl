@@ -35,8 +35,8 @@
     <div>
         <p>{l s="Configure with the data from merchant center:" mod='pipwave'}</p>
         <ul>
-            <li><a href="https://merchant.pipwave.com/development-setting/index">{l s="API key and API secret" mod='pipwave'}</a></li>
-            <li><a href="https://merchant.pipwave.com/account/general#general-processing-fee-group">{l s="Processing fee group reference ID" mod='pipwave'}</a></li>
+            <li><a href="https://merchant.pipwave.com/development-setting/index" target="_blank">{l s="API key and API secret" mod='pipwave'}</a></li>
+            <li><a href="https://merchant.pipwave.com/account/general#general-processing-fee-group" target="_blank">{l s="Processing fee group reference ID" mod='pipwave'}</a></li>
         </ul>
     </div>
 </div>
