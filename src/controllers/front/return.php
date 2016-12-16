@@ -1,11 +1,12 @@
 <?php
-
 /**
  * pipwave Prestashop Plugin
  *
- * @author pipwave <support@pipwave.com>
- *
+ * @author    pipwave <support@pipwave.com>
+ * @copyright 2016 Dynamic Podium
+ * @license   GPLv3
  */
+
 class pipwaveReturnModuleFrontController extends ModuleFrontController {
 
     public $display_column_left = false;
@@ -16,7 +17,7 @@ class pipwaveReturnModuleFrontController extends ModuleFrontController {
      * @see FrontController::postProcess()
      */
     public function postProcess() {
-        if (!$this->module->active || !isset($_GET['pipwaveTxn'])) {
+        if (!$this->module->active || !Tools::getIsset(Tools::getValue('pipwaveTxn'))) {
             //Redirect user back to order since something is wrong
             Tools::redirect('index.php?controller=order&step=1');
         }
@@ -33,7 +34,7 @@ class pipwaveReturnModuleFrontController extends ModuleFrontController {
                 $base_msg .= "This transaction is test mode!\n";
             }
             $base_msg .= "\n";
-            $this->module->validateOrder($cart->id, Configuration::get('PS_OS_PREPARATION'), number_format($this->context->cart->getOrderTotal(true, Cart::BOTH), 2, ".", ""), $this->module->displayName, sprintf($base_msg, $cart->id, $_GET['pipwaveTxn']), array(), null, false, $customer->secure_key);
+            $this->module->validateOrder($cart->id, Configuration::get('PS_OS_PREPARATION'), number_format($this->context->cart->getOrderTotal(true, Cart::BOTH), 2, ".", ""), $this->module->displayName, sprintf($base_msg, $cart->id, Tools::getValue('pipwaveTxn')), array(), null, false, $customer->secure_key);
         }
         //Show order confirmation page
         Tools::redirect('index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $this->module->currentOrder . '&key=' . $customer->secure_key);

@@ -24,8 +24,8 @@
 *}
 <p class="alert alert-success" role="alert">{l s='Your order is being processed.' sprintf=$reference mod='pipwave'}</p>
 <div class="box">
-    <h3>{l s="Order reference : %s" sprintf=$reference mod='pipwave'}</h3>
+    <h3>{l s='Order reference : %s' sprintf=$reference mod='pipwave'}</h3>
     {l s='An email has been sent with the order details.' mod='pipwave'}
     <br />
-    {l s='If you have questions, comments or concerns, ' mod='pipwave'} <a class="alert-link" href="{$link->getPageLink('contact', true)|escape:'html'}">{l s='please contact us' mod='pipwave'}</a>.
+    {l s='If you have questions, comments or concerns, ' mod='pipwave'} <a class="alert-link" href="{$link->getPageLink('contact', true)|escape:'htmlall':'UTF-8'}">{l s='please contact us' mod='pipwave'}</a>.
 </div>

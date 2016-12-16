@@ -24,7 +24,7 @@
 *}
 <div class="alert alert-info">
     <div>
-        <p><strong>{l s="An error occured while attempting to process the payment. Kindly try again or contact the administrator." mod='pipwave'}</strong></p>
-        <p><a class="alert-link" href="{$link->getPageLink('order', true)|escape:'html'}">{l s="Return to order page" mod="pipwave"}</a></p>
+        <p><strong>{l s='An error occured while attempting to process the payment. Kindly try again or contact the administrator.' mod='pipwave'}</strong></p>
+        <p><a class="alert-link" href="{$link->getPageLink('order', true)|escape:'htmlall':'UTF-8'}">{l s='Return to order page' mod='pipwave'}</a></p>
     </div>
 </div>

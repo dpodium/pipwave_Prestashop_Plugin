@@ -43,7 +43,7 @@
                 <img src="https://secure.pipwave.com/images/loading.gif" width="64" height="64" />
             </div>
             <script type="text/javascript">
-                var pwconfig = {json_encode($api_data)};
+                var pwconfig = {Tools::jsonEncode($api_data)|escape:'javascript':'UTF-8'};
                 (function (_, p, w, s, d, k) {
                     var a = _.createElement("script");
                     a.setAttribute('data-main', w + s);
@@ -60,12 +60,12 @@
                             _.getElementById(k).parentNode.replaceChild(a, _.getElementById(k));
                         }
                     }, 800);
-                })(document, 'script', "{$sdk_url}", "pw.sdk.min.js", "pw.sdk.min.js", "pwscript");
+                })(document, 'script', "{$sdk_url|escape:'javascript':'UTF-8'}", "pw.sdk.min.js", "pw.sdk.min.js", "pwscript");
             </script>
         {else}
             <div id="pm_pipwave" class="payment_module">
                 <p>
-                    {$message}
+                    {$message|escape:'htmlall':'UTF-8'}
                 </p>
             </div>
         {/if}

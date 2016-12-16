@@ -25,18 +25,18 @@
 <div class="alert alert-info">
     <div>
         <div style="float:left; margin-right:15px;">
-            <img src="{$module_dir}logo.png" width="200" height="42">
+            <img src="{$module_dir|escape:'htmlall':'UTF-8'}logo.png" width="200" height="42">
         </div>
         <div>
-            <p><strong>{l s="Simple, reliable and cost-effective way to accept payments online" mod='pipwave'}</strong></p>
+            <p><strong>{l s='Simple, reliable and cost-effective way to accept payments online' mod='pipwave'}</strong></p>
         </div>
         <div class="clearfix"></div>
     </div>
     <div>
-        <p>{l s="Configure with the data from merchant center:" mod='pipwave'}</p>
+        <p>{l s='Configure with the data from merchant center:' mod='pipwave'}</p>
         <ul>
-            <li><a href="https://merchant.pipwave.com/development-setting/index" target="_blank">{l s="API key and API secret" mod='pipwave'}</a></li>
-            <li><a href="https://merchant.pipwave.com/account/general#general-processing-fee-group" target="_blank">{l s="Processing fee group reference ID" mod='pipwave'}</a></li>
+            <li><a href="https://merchant.pipwave.com/development-setting/index" target="_blank">{l s='API key and API secret' mod='pipwave'}</a></li>
+            <li><a href="https://merchant.pipwave.com/account/general#general-processing-fee-group" target="_blank">{l s='Processing fee group reference ID' mod='pipwave'}</a></li>
         </ul>
     </div>
 </div>

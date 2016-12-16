@@ -1,11 +1,12 @@
 <?php
-
 /**
  * pipwave Prestashop Plugin
  *
- * @author pipwave <support@pipwave.com>
- *
+ * @author    pipwave <support@pipwave.com>
+ * @copyright 2016 Dynamic Podium
+ * @license   GPLv3
  */
+
 class pipwaveFailModuleFrontController extends ModuleFrontController {
 
     public $display_column_left = false;

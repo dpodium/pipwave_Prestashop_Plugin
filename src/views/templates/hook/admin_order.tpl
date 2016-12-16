@@ -32,24 +32,24 @@
                 <i class="icon-money"></i>
                 {l s='Paid with pipwave' mod='pipwave'}
             </div>
-            {$pipwave_head}
+            {$pipwave_head|escape:'htmlall':'UTF-8'}
             <form method="POST" action="#pipwave_section">
                 <div class="row">
                     <div class="form-horizontal col-lg-8">
                         <div class="form-group">
-                            <label class="control-label col-lg-3">{l s="pipwave Reference ID: " mod='pipwave'}</label>
+                            <label class="control-label col-lg-3">{l s='pipwave Reference ID: ' mod='pipwave'}</label>
                             <label class="control-label col-lg-5">
-                                <div class="text-left"><a href="{$pipwave_merchant_portal_url}reports/payment-transaction/view?pw_id={$pipwave_pw_id}" target="_pipwave">{$pipwave_pw_id} <i class="icon-external-link"></i></a></div>
+                                <div class="text-left"><a href="{$pipwave_merchant_portal_url|escape:'htmlall':'UTF-8'}reports/payment-transaction/view?pw_id={$pipwave_pw_id|escape:'htmlall':'UTF-8'}" target="_pipwave">{$pipwave_pw_id|escape:'htmlall':'UTF-8'} <i class="icon-external-link"></i></a></div>
                             </label>
                         </div>
                         <div class="form-group">
-                            <label class="control-label col-lg-3">{l s="Refund: " mod='pipwave'}</label>
+                            <label class="control-label col-lg-3">{l s='Refund: ' mod='pipwave'}</label>
                             <div class="col-lg-5">
                                 <input type="text" name="pipwave_refund_amount" value="{$pipwave_refund_amount|floatval}" />
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-lg-9 col-lg-offset-3"><input type="submit" class="btn btn-default" value="{l s="refund" mod='pipwave'}" /></div>
+                            <div class="col-lg-9 col-lg-offset-3"><input type="submit" class="btn btn-default" value="{l s='refund' mod='pipwave'}" /></div>
                         </div>
                     </div>
                 </div>

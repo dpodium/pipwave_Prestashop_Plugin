@@ -1,17 +1,14 @@
 <?php
-
 /**
  * pipwave Prestashop Plugin
  *
- * @author pipwave <support@pipwave.com>
- *
+ * @author    pipwave <support@pipwave.com>
+ * @copyright 2016 Dynamic Podium
+ * @license   GPLv3
  */
+
 if (!defined('_PS_VERSION_'))
     exit;
-
-//TODO NKL check notes
-//1. Refund flow
-//
 
 class pipwave extends PaymentModule {
 
@@ -24,6 +21,7 @@ class pipwave extends PaymentModule {
     public $merchant_portal_url, $secure_portal_url, $api_portal_url;
 
     public function __construct() {
+        $this->module_key = '1438c7820eb9d39855e4758c349ba0ba';
         $this->name = 'pipwave';
         $this->tab = 'payments_gateways';
         $this->version = '1.0.0';
@@ -38,23 +36,23 @@ class pipwave extends PaymentModule {
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.6');
 
         $config = Configuration::getMultiple(array('PIPWAVE_API_KEY', 'PIPWAVE_API_SECRET', 'PIPWAVE_SURCHARGE_GROUP', 'PIPWAVE_TEST_MODE', 'PIPWAVE_ORDER_PREFIX'));
-        if (isset($config['PIPWAVE_API_KEY'])) {
+        if (Tools::getIsset($config['PIPWAVE_API_KEY'])) {
             $this->api_key = $config['PIPWAVE_API_KEY'];
         }
-        if (isset($config['PIPWAVE_API_SECRET'])) {
+        if (Tools::getIsset($config['PIPWAVE_API_SECRET'])) {
             $this->api_secret = $config['PIPWAVE_API_SECRET'];
         }
-        if (isset($config['PIPWAVE_SURCHARGE_GROUP'])) {
+        if (Tools::getIsset($config['PIPWAVE_SURCHARGE_GROUP'])) {
             $this->surcharge_group = $config['PIPWAVE_SURCHARGE_GROUP'];
         }
-        if (isset($config['PIPWAVE_TEST_MODE'])) {
+        if (Tools::getIsset($config['PIPWAVE_TEST_MODE'])) {
             $this->test_mode = $config['PIPWAVE_TEST_MODE'];
         }
-        if (isset($config['PIPWAVE_ORDER_PREFIX'])) {
+        if (Tools::getIsset($config['PIPWAVE_ORDER_PREFIX'])) {
             $this->order_prefix = $config['PIPWAVE_ORDER_PREFIX'];
         }
         parent::__construct();
-        if (!isset($this->api_key) || !isset($this->api_secret)) {
+        if (!Tools::getIsset($this->api_key) || !Tools::getIsset($this->api_secret)) {
             $this->warning = $this->l('Your pipwave account is not set yet');
         }
         if ($this->test_mode == '0') {
@@ -214,18 +212,18 @@ class pipwave extends PaymentModule {
         $caller_version = 'Prestashop v' . _PS_VERSION_ . ' Plugin v' . $this->version;
 
         $lang = new Language($this->context->cart->id_lang);
-        $billing_address = new Address(intval($this->context->cart->id_address_invoice));
-        $billing_state = new State(intval($billing_address->id_state));
-        $billing_country = new Country(intval($billing_address->id_country));
-        $shipping_address = new Address(intval($this->context->cart->id_address_delivery));
-        $shipping_state = new State(intval($shipping_address->id_state));
-        $shipping_country = new Country(intval($shipping_address->id_country));
+        $billing_address = new Address((int) $this->context->cart->id_address_invoice);
+        $billing_state = new State((int) $billing_address->id_state);
+        $billing_country = new Country((int) $billing_address->id_country);
+        $shipping_address = new Address((int) $this->context->cart->id_address_delivery);
+        $shipping_state = new State((int) $shipping_address->id_state);
+        $shipping_country = new Country((int) $shipping_address->id_country);
 
         $data = array(
             'action' => 'initiate-payment',
             'timestamp' => time(),
             'api_key' => $this->api_key,
-            'txn_id' => (isset($this->order_prefix) ? $this->order_prefix : '') . $this->context->cart->id,
+            'txn_id' => (Tools::getIsset($this->order_prefix) ? $this->order_prefix : '') . $this->context->cart->id,
             'amount' => number_format($this->context->cart->getOrderTotal(true, Cart::BOTH), 2, ".", ""),
             'currency_code' => $this->context->currency->iso_code,
             'short_description' => 'Payment for Cart#' . $this->context->cart->id,
@@ -291,7 +289,7 @@ class pipwave extends PaymentModule {
 
         $response = $this->sendRequest($data);
 
-        if (isset($response['status']) && $response['status'] == 200) {
+        if (Tools::getIsset($response['status']) && $response['status'] == 200) {
             $this->smarty->assign(array(
                 'initiate_payment' => 'success',
                 'api_data' => array(
@@ -321,7 +319,7 @@ class pipwave extends PaymentModule {
         if (!$this->active)
             return;
 
-        if (isset($params['objOrder']->reference)) {
+        if (Tools::getIsset($params['objOrder']->reference)) {
             $this->smarty->assign(array(
                 'reference' => $params['objOrder']->reference,
             ));
@@ -337,20 +335,20 @@ class pipwave extends PaymentModule {
      */
     public function hookBackOfficeHeader() {
         // Continue only if we are on the order's details page (Back-office)
-        if (!isset($_GET['vieworder']) || !isset($_GET['id_order'])) {
+        if (!Tools::getIsset(Tools::getValue('vieworder')) || !Tools::getIsset(Tools::getValue('id_order'))) {
             return;
         }
         
-        $order = new Order($_GET['id_order']);
+        $order = new Order(Tools::getValue('id_order'));
         if ($order->module != $this->name) {
             return;
         }
         // Refund button is clicked!
-        if (isset($_POST['pipwave_refund_amount'])) {
+        if (Tools::getIsset(Tools::getValue('pipwave_refund_amount'))) {
             $this->smarty->assign(array(
-                'pipwave_refund_amount' => $_POST['pipwave_refund_amount'],
+                'pipwave_refund_amount' => Tools::getValue('pipwave_refund_amount'),
             ));
-            $this->processRefund($order, $_POST['pipwave_refund_amount']);
+            $this->processRefund($order, Tools::getValue('pipwave_refund_amount'));
         }
     }
 
@@ -365,7 +363,7 @@ class pipwave extends PaymentModule {
             return;
         }
         $payment_collection = $this->getFirstOrderPayment($order);
-        $pw_id = isset($payment_collection->transaction_id) ? $payment_collection->transaction_id : '';
+        $pw_id = Tools::getIsset($payment_collection->transaction_id) ? $payment_collection->transaction_id : '';
         $this->smarty->assign(array(
             'pipwave_pw_id' => $pw_id,
             'pipwave_merchant_portal_url' => $this->merchant_portal_url,
@@ -384,7 +382,7 @@ class pipwave extends PaymentModule {
             return;
         }
         $payment_collection = $this->getFirstOrderPayment($order);
-        $pw_id = isset($payment_collection->transaction_id) ? $payment_collection->transaction_id : '';
+        $pw_id = Tools::getIsset($payment_collection->transaction_id) ? $payment_collection->transaction_id : '';
         if (empty($pw_id)) {
             $this->smarty->assign(array(
                 'pipwave_head' => $this->displayError($this->l('pipwave reference ID not found. Kindly contact pipwave administrator.')),
@@ -400,14 +398,14 @@ class pipwave extends PaymentModule {
         );
         
         $response = $this->attemptRefundRequest($data, 'initiate');
-        if (isset($response['status']) && $response['status'] == 200) {
+        if (Tools::getIsset($response['status']) && $response['status'] == 200) {
             if (!$response['supports_refund']) {
                 $this->smarty->assign(array(
                     'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
                 ));
             } else {
                 $response = $this->attemptRefundRequest($data, 'submit');
-                if (!isset($response['status'])) {
+                if (!Tools::getIsset($response['status'])) {
                     $this->smarty->assign(array(
                         'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
                     ));
@@ -457,7 +455,7 @@ class pipwave extends PaymentModule {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('x-api-key' => $this->api_key));
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, Tools::jsonEncode($data));
         curl_setopt($ch, CURLOPT_URL, $this->api_portal_url);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, TRUE);
@@ -474,7 +472,7 @@ class pipwave extends PaymentModule {
         }
         curl_close($ch);
 
-        return json_decode($response, true, 512, JSON_BIGINT_AS_STRING);
+        return Tools::jsonDecode($response, true, 512, JSON_BIGINT_AS_STRING);
     }
     
     /*======== Public functions ========*/
@@ -492,7 +490,7 @@ class pipwave extends PaymentModule {
 
     public function getFirstOrderPayment($order) {
         $payment_collection = $order->getOrderPaymentCollection();
-        if (isset($payment_collection[0])) {
+        if (Tools::getIsset($payment_collection[0])) {
             return $payment_collection[0];
         }
         return null;
