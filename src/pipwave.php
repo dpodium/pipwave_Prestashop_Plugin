@@ -36,23 +36,23 @@ class pipwave extends PaymentModule {
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.6');
 
         $config = Configuration::getMultiple(array('PIPWAVE_API_KEY', 'PIPWAVE_API_SECRET', 'PIPWAVE_SURCHARGE_GROUP', 'PIPWAVE_TEST_MODE', 'PIPWAVE_ORDER_PREFIX'));
-        if (Tools::getIsset($config['PIPWAVE_API_KEY'])) {
+        if (array_key_exists('PIPWAVE_API_KEY', $config)) {
             $this->api_key = $config['PIPWAVE_API_KEY'];
         }
-        if (Tools::getIsset($config['PIPWAVE_API_SECRET'])) {
+        if (array_key_exists('PIPWAVE_API_SECRET', $config)) {
             $this->api_secret = $config['PIPWAVE_API_SECRET'];
         }
-        if (Tools::getIsset($config['PIPWAVE_SURCHARGE_GROUP'])) {
+        if (array_key_exists('PIPWAVE_SURCHARGE_GROUP', $config)) {
             $this->surcharge_group = $config['PIPWAVE_SURCHARGE_GROUP'];
         }
-        if (Tools::getIsset($config['PIPWAVE_TEST_MODE'])) {
+        if (array_key_exists('PIPWAVE_TEST_MODE', $config)) {
             $this->test_mode = $config['PIPWAVE_TEST_MODE'];
         }
-        if (Tools::getIsset($config['PIPWAVE_ORDER_PREFIX'])) {
+        if (array_key_exists('PIPWAVE_ORDER_PREFIX', $config)) {
             $this->order_prefix = $config['PIPWAVE_ORDER_PREFIX'];
         }
         parent::__construct();
-        if (!Tools::getIsset($this->api_key) || !Tools::getIsset($this->api_secret)) {
+        if (empty($this->api_key) || empty($this->api_secret)) {
             $this->warning = $this->l('Your pipwave account is not set yet');
         }
         if ($this->test_mode == '0') {
@@ -223,7 +223,7 @@ class pipwave extends PaymentModule {
             'action' => 'initiate-payment',
             'timestamp' => time(),
             'api_key' => $this->api_key,
-            'txn_id' => (Tools::getIsset($this->order_prefix) ? $this->order_prefix : '') . $this->context->cart->id,
+            'txn_id' => (!empty($this->order_prefix) ? $this->order_prefix : '') . $this->context->cart->id,
             'amount' => number_format($this->context->cart->getOrderTotal(true, Cart::BOTH), 2, ".", ""),
             'currency_code' => $this->context->currency->iso_code,
             'short_description' => 'Payment for Cart#' . $this->context->cart->id,
@@ -289,7 +289,7 @@ class pipwave extends PaymentModule {
 
         $response = $this->sendRequest($data);
 
-        if (Tools::getIsset($response['status']) && $response['status'] == 200) {
+        if (array_key_exists('status', $response) && $response['status'] == 200) {
             $this->smarty->assign(array(
                 'initiate_payment' => 'success',
                 'api_data' => array(
@@ -319,7 +319,7 @@ class pipwave extends PaymentModule {
         if (!$this->active)
             return;
 
-        if (Tools::getIsset($params['objOrder']->reference)) {
+        if (array_key_exists('objOrder', $params) && !empty($params['objOrder']->reference)) {
             $this->smarty->assign(array(
                 'reference' => $params['objOrder']->reference,
             ));
@@ -335,7 +335,7 @@ class pipwave extends PaymentModule {
      */
     public function hookBackOfficeHeader() {
         // Continue only if we are on the order's details page (Back-office)
-        if (!Tools::getIsset(Tools::getValue('vieworder')) || !Tools::getIsset(Tools::getValue('id_order'))) {
+        if (!Tools::getIsset('vieworder') || !Tools::getIsset('id_order')) {
             return;
         }
         
@@ -344,7 +344,7 @@ class pipwave extends PaymentModule {
             return;
         }
         // Refund button is clicked!
-        if (Tools::getIsset(Tools::getValue('pipwave_refund_amount'))) {
+        if (Tools::getIsset('pipwave_refund_amount')) {
             $this->smarty->assign(array(
                 'pipwave_refund_amount' => Tools::getValue('pipwave_refund_amount'),
             ));
@@ -363,7 +363,7 @@ class pipwave extends PaymentModule {
             return;
         }
         $payment_collection = $this->getFirstOrderPayment($order);
-        $pw_id = Tools::getIsset($payment_collection->transaction_id) ? $payment_collection->transaction_id : '';
+        $pw_id = !empty($payment_collection->transaction_id) ? $payment_collection->transaction_id : '';
         $this->smarty->assign(array(
             'pipwave_pw_id' => $pw_id,
             'pipwave_merchant_portal_url' => $this->merchant_portal_url,
@@ -382,7 +382,7 @@ class pipwave extends PaymentModule {
             return;
         }
         $payment_collection = $this->getFirstOrderPayment($order);
-        $pw_id = Tools::getIsset($payment_collection->transaction_id) ? $payment_collection->transaction_id : '';
+        $pw_id = !empty($payment_collection->transaction_id) ? $payment_collection->transaction_id : '';
         if (empty($pw_id)) {
             $this->smarty->assign(array(
                 'pipwave_head' => $this->displayError($this->l('pipwave reference ID not found. Kindly contact pipwave administrator.')),
@@ -398,14 +398,14 @@ class pipwave extends PaymentModule {
         );
         
         $response = $this->attemptRefundRequest($data, 'initiate');
-        if (Tools::getIsset($response['status']) && $response['status'] == 200) {
+        if (array_key_exists('status', $response) && $response['status'] == 200) {
             if (!$response['supports_refund']) {
                 $this->smarty->assign(array(
                     'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
                 ));
             } else {
                 $response = $this->attemptRefundRequest($data, 'submit');
-                if (!Tools::getIsset($response['status'])) {
+                if (!array_key_exists('status', $response)) {
                     $this->smarty->assign(array(
                         'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
                     ));
@@ -490,7 +490,7 @@ class pipwave extends PaymentModule {
 
     public function getFirstOrderPayment($order) {
         $payment_collection = $order->getOrderPaymentCollection();
-        if (Tools::getIsset($payment_collection[0])) {
+        if (!empty($payment_collection[0])) {
             return $payment_collection[0];
         }
         return null;

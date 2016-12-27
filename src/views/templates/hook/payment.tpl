@@ -43,7 +43,7 @@
                 <img src="https://secure.pipwave.com/images/loading.gif" width="64" height="64" />
             </div>
             <script type="text/javascript">
-                var pwconfig = {Tools::jsonEncode($api_data)|escape:'javascript':'UTF-8'};
+                var pwconfig = {Tools::jsonEncode($api_data)|escape:'raw':'UTF-8'};
                 (function (_, p, w, s, d, k) {
                     var a = _.createElement("script");
                     a.setAttribute('data-main', w + s);

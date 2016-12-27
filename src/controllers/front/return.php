@@ -17,7 +17,7 @@ class pipwaveReturnModuleFrontController extends ModuleFrontController {
      * @see FrontController::postProcess()
      */
     public function postProcess() {
-        if (!$this->module->active || !Tools::getIsset(Tools::getValue('pipwaveTxn'))) {
+        if (!$this->module->active || !Tools::getIsset('pipwaveTxn')) {
             //Redirect user back to order since something is wrong
             Tools::redirect('index.php?controller=order&step=1');
         }

@@ -27,16 +27,16 @@ class pipwaveNotificationModuleFrontController extends ModuleFrontController {
      * @param array $post_data
      */
     protected function actualProcess($post_data) {
-        $timestamp = (Tools::getIsset($post_data['timestamp']) && !empty($post_data['timestamp'])) ? $post_data['timestamp'] : time();
-        $pw_id = (Tools::getIsset($post_data['pw_id']) && !empty($post_data['pw_id'])) ? $post_data['pw_id'] : '';
-        $order_number = (Tools::getIsset($post_data['txn_id']) && !empty($post_data['txn_id'])) ? $post_data['txn_id'] : '';
-        $cart_id = (Tools::getIsset($post_data['extra_param1']) && !empty($post_data['extra_param1'])) ? $post_data['extra_param1'] : '';
-        $amount = (Tools::getIsset($post_data['amount']) && !empty($post_data['amount'])) ? $post_data['amount'] : '';
-        $final_amount = (Tools::getIsset($post_data['final_amount']) && !empty($post_data['final_amount'])) ? $post_data['final_amount'] : "0.00";
-        $currency_code = (Tools::getIsset($post_data['currency_code']) && !empty($post_data['currency_code'])) ? $post_data['currency_code'] : '';
-        $transaction_status = (Tools::getIsset($post_data['transaction_status']) && !empty($post_data['transaction_status'])) ? $post_data['transaction_status'] : '';
+        $timestamp = (array_key_exists('timestamp', $post_data) && !empty($post_data['timestamp'])) ? $post_data['timestamp'] : time();
+        $pw_id = (array_key_exists('pw_id', $post_data) && !empty($post_data['pw_id'])) ? $post_data['pw_id'] : '';
+        $order_number = (array_key_exists('txn_id', $post_data) && !empty($post_data['txn_id'])) ? $post_data['txn_id'] : '';
+        $cart_id = (array_key_exists('extra_param1', $post_data) && !empty($post_data['extra_param1'])) ? $post_data['extra_param1'] : '';
+        $amount = (array_key_exists('amount', $post_data) && !empty($post_data['amount'])) ? $post_data['amount'] : '';
+        $final_amount = (array_key_exists('final_amount', $post_data) && !empty($post_data['final_amount'])) ? $post_data['final_amount'] : "0.00";
+        $currency_code = (array_key_exists('currency_code', $post_data) && !empty($post_data['currency_code'])) ? $post_data['currency_code'] : '';
+        $transaction_status = (array_key_exists('transaction_status', $post_data) && !empty($post_data['transaction_status'])) ? $post_data['transaction_status'] : '';
         $payment_method = 'pipwave' . (!empty($post_data['payment_method_title']) ? (" - " . $post_data['payment_method_title']) : "");
-        $signature = (Tools::getIsset($post_data['signature']) && !empty($post_data['signature'])) ? $post_data['signature'] : '';
+        $signature = (array_key_exists('signature', $post_data) && !empty($post_data['signature'])) ? $post_data['signature'] : '';
         $signatureParam = array(
             'timestamp' => $timestamp,
             'pw_id' => $pw_id,
@@ -93,10 +93,10 @@ class pipwaveNotificationModuleFrontController extends ModuleFrontController {
         $order = new Order((int) Order::getOrderByCartId($cart_id));
         $payment_collection = null;
         
-        if (!Tools::getIsset($order)) {
+        if (empty($order)) {
             //Order not created yet, probably buyer disconnected
             $cart = new Cart((int) $cart_id);
-            if (!Tools::getIsset($cart->id)) {
+            if (empty($cart->id)) {
                 //TODO Find no cart... Ignore?
                 return;
             } else {
@@ -120,7 +120,7 @@ class pipwaveNotificationModuleFrontController extends ModuleFrontController {
                     $base_msg .= "This transaction is test mode!\n";
                 }
                 $base_msg .= "\n%s";
-                $this->module->validateOrder((int) $cart->id, $move_order, $cart_order_total, $this->module->displayName, sprintf($base_msg, $cart->id, $order_number, implode("\n", $note)), array(), $cart->id_currency, false, $customer->secure_key);
+                $this->module->validateOrder((int) $cart->id, $move_order, $cart_order_total, $payment_method, sprintf($base_msg, $cart->id, $order_number, implode("\n", $note)), array(), $cart->id_currency, false, $customer->secure_key);
                 
                 //Pre-grab payment collection object so that we can set pw_id later
                 $order = new Order((int) Order::getOrderByCartId($cart_id));
@@ -159,7 +159,7 @@ class pipwaveNotificationModuleFrontController extends ModuleFrontController {
             $msg->add();
             
             //Payment collection not found, means no invoice yet
-            if (!Tools::getIsset($payment_collection)) {
+            if (!empty($payment_collection)) {
                 //Try to create the invoice here, see if failed then it means invoice is disabled for the status
                 $order->setInvoice(true);
                 //If successful create invoice, grab the payment collection object again so that we can set pw_id
@@ -167,9 +167,18 @@ class pipwaveNotificationModuleFrontController extends ModuleFrontController {
             }
         }
         
-        if (Tools::getIsset($payment_collection) && $payment_collection->transaction_id == '') {
+        //Refresh order model in case other functions changed data in database
+        $order = new Order((int) $order->id);
+        if (!empty($order)) {
+            //Update the payment method
+            $order->payment = $payment_method;
+            $order->save();
+        }
+        
+        if (!empty($payment_collection) && $payment_collection->transaction_id == '') {
             //Update the payment collection transaction ID
             $payment_collection->transaction_id = $pw_id;
+            $payment_collection->payment_method = $payment_method;
             $payment_collection->save();
         }
     }
