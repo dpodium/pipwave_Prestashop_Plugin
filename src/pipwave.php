@@ -453,7 +453,7 @@ class pipwave extends PaymentModule {
     protected function sendRequest($data) {
         $agent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)";
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('x-api-key' => $this->api_key));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("x-api-key:$this->api_key"));
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, Tools::jsonEncode($data));
         curl_setopt($ch, CURLOPT_URL, $this->api_portal_url);
