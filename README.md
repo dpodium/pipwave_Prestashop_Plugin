@@ -8,15 +8,7 @@ pipwave is not responsible for any problems that might arise from the use of thi
 Use at your own risk. Please backup any critical data before proceeding. For any query or 
 assistance, please email support@pipwave.com
 
-Installation (Recommended)
-============
-1. Navigate to "Modules and Services" in Prestashop admin console.
-
-2. Find our plugin in Prestashop in Payments and Gateways section.
-
-3. Click "Install".
-
-Installation (Alternative)
+Installation
 ============
 1. Download this repository.
 
