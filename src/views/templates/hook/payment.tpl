@@ -46,7 +46,6 @@
                 var pwconfig = {Tools::jsonEncode($api_data)|escape:'raw':'UTF-8'};
                 (function (_, p, w, s, d, k) {
                     var a = _.createElement("script");
-                    a.setAttribute('data-main', w + s);
                     a.setAttribute('src', w + d);
                     a.setAttribute('id', k);
                     setTimeout(function () {
