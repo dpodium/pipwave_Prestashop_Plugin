@@ -15,8 +15,17 @@ class pipwaveNotificationModuleFrontController extends ModuleFrontController {
      * @see FrontController::postProcess()
      */
     public function postProcess() {
-        header('HTTP/1.1 200 OK');
+        ignore_user_abort(true); // just to be safe
+        ob_start();
         echo "OK";
+        $size = ob_get_length();
+        header('HTTP/1.1 200 OK');
+        header("Connection: close");
+        header("Content-Length: $size");
+        ob_end_flush();
+        ob_flush();
+        flush();
+        
         $post_content = Tools::file_get_contents("php://input");
         $post_data = Tools::jsonDecode($post_content, true);
         $this->actualProcess($post_data);
