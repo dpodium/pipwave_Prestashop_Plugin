@@ -413,7 +413,7 @@ class pipwave extends PaymentModule {
                     $this->smarty->assign(array(
                         'pipwave_head' => $this->displayConfirmation($this->l('Refund request submitted successfully!')),
                     ));
-                } else if (in_array($response['status'], array(3003, 3004, 3005, '3003', '3004', '3005'))) {
+                } else if (in_array($response['status'], array(4003, 4004, 4005, '4003', '4004', '4005'))) {
                     $this->smarty->assign(array(
                         'pipwave_head' => $this->displayError($this->l('Refund for this transaction must be done in pipwave merchant center.')),
                     ));
