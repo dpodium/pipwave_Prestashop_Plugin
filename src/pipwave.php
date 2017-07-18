@@ -24,7 +24,7 @@ class pipwave extends PaymentModule {
         $this->module_key = '1438c7820eb9d39855e4758c349ba0ba';
         $this->name = 'pipwave';
         $this->tab = 'payments_gateways';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->author = 'Dynamic Podium';
         $this->author_uri = 'https://github.com/dpodium';
         $this->currencies = true;
@@ -225,6 +225,8 @@ class pipwave extends PaymentModule {
             'api_key' => $this->api_key,
             'txn_id' => (!empty($this->order_prefix) ? $this->order_prefix : '') . $this->context->cart->id,
             'amount' => number_format($this->context->cart->getOrderTotal(true, Cart::BOTH), 2, ".", ""),
+            'shipping_amount' => number_format($this->context->cart->getOrderTotal(true, Cart::ONLY_SHIPPING), 2, ".", ""),
+            'handling_amount' => number_format($this->context->cart->getOrderTotal(true, Cart::ONLY_WRAPPING), 2, ".", ""),
             'currency_code' => $this->context->currency->iso_code,
             'short_description' => 'Payment for Cart#' . $this->context->cart->id,
             'session_info' => array(
@@ -272,7 +274,7 @@ class pipwave extends PaymentModule {
             $data['item_info'][] = array(
                 "name" => $product['name'],
                 "description" => strip_tags(trim($product['description_short'])),
-                "amount" => $product['price'],
+                "amount" => number_format($product['total_wt'] / $product['quantity'], 2, '.', ''),
                 "currency_code" => $data['currency_code'],
                 "quantity" => $product['quantity'],
             );
