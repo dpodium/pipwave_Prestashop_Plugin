@@ -32,7 +32,7 @@
                 <i class="icon-money"></i>
                 {l s='Paid with pipwave' mod='pipwave'}
             </div>
-            {$pipwave_head|escape:'htmlall':'UTF-8'}
+            {if isset($pipwave_head)}{$pipwave_head|escape:'htmlall':'UTF-8'}{/if}
             <form method="POST" action="#pipwave_section">
                 <div class="row">
                     <div class="form-horizontal col-lg-8">
@@ -45,7 +45,7 @@
                         <div class="form-group">
                             <label class="control-label col-lg-3">{l s='Refund: ' mod='pipwave'}</label>
                             <div class="col-lg-5">
-                                <input type="text" name="pipwave_refund_amount" value="{$pipwave_refund_amount|floatval}" />
+                                <input type="text" name="pipwave_refund_amount" value="{if isset($pipwave_refund_amount)}{$pipwave_refund_amount|floatval}{/if}" />
                             </div>
                         </div>
                         <div class="form-group">
