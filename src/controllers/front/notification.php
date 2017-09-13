@@ -36,16 +36,16 @@ class pipwaveNotificationModuleFrontController extends ModuleFrontController {
      * @param array $post_data
      */
     protected function actualProcess($post_data) {
-        $timestamp = (array_key_exists('timestamp', $post_data) && !empty($post_data['timestamp'])) ? $post_data['timestamp'] : time();
-        $pw_id = (array_key_exists('pw_id', $post_data) && !empty($post_data['pw_id'])) ? $post_data['pw_id'] : '';
-        $order_number = (array_key_exists('txn_id', $post_data) && !empty($post_data['txn_id'])) ? $post_data['txn_id'] : '';
-        $cart_id = (array_key_exists('extra_param1', $post_data) && !empty($post_data['extra_param1'])) ? $post_data['extra_param1'] : '';
-        $amount = (array_key_exists('amount', $post_data) && !empty($post_data['amount'])) ? $post_data['amount'] : '';
+        $timestamp = (array_key_exists('timestamp', $post_data)) ? $post_data['timestamp'] : time();
+        $pw_id = (array_key_exists('pw_id', $post_data)) ? $post_data['pw_id'] : '';
+        $order_number = (array_key_exists('txn_id', $post_data)) ? $post_data['txn_id'] : '';
+        $cart_id = (array_key_exists('extra_param1', $post_data)) ? $post_data['extra_param1'] : '';
+        $amount = (array_key_exists('amount', $post_data)) ? $post_data['amount'] : '';
         $final_amount = (array_key_exists('final_amount', $post_data) && !empty($post_data['final_amount'])) ? $post_data['final_amount'] : "0.00";
-        $currency_code = (array_key_exists('currency_code', $post_data) && !empty($post_data['currency_code'])) ? $post_data['currency_code'] : '';
-        $transaction_status = (array_key_exists('transaction_status', $post_data) && !empty($post_data['transaction_status'])) ? $post_data['transaction_status'] : '';
+        $currency_code = (array_key_exists('currency_code', $post_data)) ? $post_data['currency_code'] : '';
+        $transaction_status = (array_key_exists('transaction_status', $post_data)) ? $post_data['transaction_status'] : '';
         $payment_method = 'pipwave' . (!empty($post_data['payment_method_title']) ? (" - " . $post_data['payment_method_title']) : "");
-        $signature = (array_key_exists('signature', $post_data) && !empty($post_data['signature'])) ? $post_data['signature'] : '';
+        $signature = (array_key_exists('signature', $post_data)) ? $post_data['signature'] : '';
         $signatureParam = array(
             'timestamp' => $timestamp,
             'pw_id' => $pw_id,
@@ -66,7 +66,8 @@ class pipwaveNotificationModuleFrontController extends ModuleFrontController {
         
         $move_order = null;
         switch ($transaction_status) {
-            case 5: // pending
+            case 0: // pending
+            case 5: // processing
                 $note[] = "Payment Status: Pending$with_warning_msg";
                 $move_order = Configuration::get('PS_OS_PREPARATION');
                 break;
@@ -102,7 +103,7 @@ class pipwaveNotificationModuleFrontController extends ModuleFrontController {
         $order = new Order((int) Order::getOrderByCartId($cart_id));
         $payment_collection = null;
         
-        if (empty($order)) {
+        if (empty($order->id)) {
             //Order not created yet, probably buyer disconnected
             $cart = new Cart((int) $cart_id);
             if (empty($cart->id)) {
