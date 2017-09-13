@@ -12,13 +12,13 @@ if (!defined('_PS_VERSION_'))
 
 class pipwave extends PaymentModule {
 
-    protected $api_key, $api_secret, $surcharge_group, $order_prefix;
+    protected $api_key, $api_secret, $surcharge_group;
     public $test_mode;
     
     protected $sdk_version = 'v1.0';
     protected $api_version = 'v1.0';
     
-    public $merchant_portal_url, $secure_portal_url, $api_portal_url;
+    public $merchant_portal_url, $secure_portal_url, $api_portal_url, $order_prefix;
 
     public function __construct() {
         $this->module_key = '1438c7820eb9d39855e4758c349ba0ba';
